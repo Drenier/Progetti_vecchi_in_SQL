@@ -33,25 +33,25 @@ CREATE TABLE Progetti (
     video VARCHAR(75) NOT NULL,
     scadenza DATE NOT NULL,
     FKCodOnlus CHAR(4),
-    FOREIGN KEY (FKCodOnlus) REFERENCES Onlus(CodOnlus),
     FKIDricompensa CHAR(4),
+    FOREIGN KEY (FKCodOnlus) REFERENCES Onlus(CodOnlus),
     FOREIGN KEY (FKIDricompensa) REFERENCES Ricompense(IDricompensa)
 );
 
 CREATE TABLE Attenere (
     FKCodProgetto CHAR(4),
-    FOREIGN KEY (FKCodProgetto) REFERENCES Progetti(CodProgetto),
     FKIDambito CHAR(4),
-    FOREIGN KEY (FKIDambito) REFERENCES Ambiti(IDambito),
-    PRIMARY KEY (FKCodProgetto, FKIDambito)
+    PRIMARY KEY (FKCodProgetto, FKIDambito),
+    FOREIGN KEY (FKCodProgetto) REFERENCES Progetti(CodProgetto),
+    FOREIGN KEY (FKIDambito) REFERENCES Ambiti(IDambito)
 );
 
 CREATE TABLE Mirare (
     FKCodProgetto CHAR(4),
-    FOREIGN KEY (FKCodProgetto) REFERENCES Progetti(CodProgetto),
     FKIDobiettivo CHAR(4),
-    FOREIGN KEY (FKIDobiettivo) REFERENCES Obiettivi(IDobiettivo),
-    PRIMARY KEY (FKCodProgetto, FKIDobiettivo)
+    PRIMARY KEY (FKCodProgetto, FKIDobiettivo),
+    FOREIGN KEY (FKCodProgetto) REFERENCES Progetti(CodProgetto),
+    FOREIGN KEY (FKIDobiettivo) REFERENCES Obiettivi(IDobiettivo)
 );
 
 CREATE TABLE Donatori (
@@ -68,11 +68,11 @@ CREATE TABLE Donatori (
 
 CREATE TABLE Donazioni (
     CodDonazione CHAR(4) PRIMARY KEY,
-    importo DECIMAL(10, 2) NOT NULL,
+    importo DECIMAL(10,2) NOT NULL,
     data_donaz DATE NOT NULL,
     FKCodProgetto CHAR(4),
-    FOREIGN KEY (FKCodProgetto) REFERENCES Progetti(CodProgetto),
     FKCodDonatore CHAR(4),
+    FOREIGN KEY (FKCodProgetto) REFERENCES Progetti(CodProgetto),
     FOREIGN KEY (FKCodDonatore) REFERENCES Donatori(CodDonatore)
 );
 
@@ -83,15 +83,17 @@ CREATE TABLE Modalita (
     FOREIGN KEY (FKCodDonazione) REFERENCES Donazioni(CodDonazione)
 );
 
+
 -- Elenco delle donazioni fatte ad un certo progetto
 SELECT P.titolo, D.CodDonazione, D.importo, D.data_donaz
 FROM Donazioni D
 JOIN Progetti P ON D.FKCodProgetto = P.CodProgetto
-WHERE P.CodProgetto = FKCodProgetto;
+WHERE P.CodProgetto = 'P001';
 
 -- Somma delle donazioni per ogni progetto alla data odierna
 SELECT P.titolo, SUM(D.importo) AS Totale_Donazioni
 FROM Donazioni D
 JOIN Progetti P ON D.FKCodProgetto = P.CodProgetto
-WHERE D.data_donaz = CURRENT_DATE();
-GROUP BY P.CodProgetto;
+WHERE D.data_donaz = CURRENT_DATE()
+GROUP BY P.CodProgetto, P.titolo;
+
